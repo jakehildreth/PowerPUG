@@ -166,7 +166,15 @@ Invoke-Command -ComputerName $($_.Name) -ScriptBlock { auditpol /set /subcategor
     #endregion show DC results
 
     #region show User results
-    $ADAdmins = $Environment.ForestAdmins + $Environment.DomainAdmins
+    if ($Environment.ForestAdmins) {
+        $ForestAdmins = [System.Collections.Generic.List[PSObject]]@($Environment.ForestAdmins)
+    }
+
+    if ($Environment.DomainAdmins) {
+        $DomainAdmins = [System.Collections.Generic.List[PSObject]]@($Environment.DomainAdmins)
+    }
+    
+    $ADAdmins = $ForestAdmins + $DomainAdmins
     $SelectProperties = @(
         'Forest',
         'Domain',
@@ -193,7 +201,7 @@ Invoke-Command -ComputerName $($_.Name) -ScriptBlock { auditpol /set /subcategor
     *Service accounts and computer accounts* should not be members of the Protected Users Group.
 
 "@
-    Write-PPHost -Type Info -Message "The following AD Admins are members of the Protected Users Group:"
+    Write-PPHost -Type Info -Message "The following AD Admins ARE members of the Protected Users Group:"
 
     $ADAdmins | Select-Object $SelectProperties | Sort-Object -Unique $SortProperties | ForEach-Object {
         if ($_.PugMember) {
@@ -209,7 +217,7 @@ Invoke-Command -ComputerName $($_.Name) -ScriptBlock { auditpol /set /subcategor
         return
     }
 
-    Write-PPHost -Type Info -Message "The following AD Admins are not members of the Protected Users Group:"
+    Write-PPHost -Type Info -Message "The following AD Admins ARE NOT members of the Protected Users Group:"
     $ADAdmins | Select-Object $SelectProperties | Sort-Object -Unique $SortProperties | ForEach-Object {
         if (-not $_.PugMember) {
             Write-PPHost -Type Error -Message "$($_.Domain)\$($_.SamAccountName)"
@@ -274,7 +282,7 @@ AD Admins that meet any of the following conditions cannot be added to the Prote
   - Service accounts (managed or otherwise)
 
 "@
-    Write-PPHost -Type Info -Message "The following AD Admins cannot be added to the Protected Users Group (and probably should be removed from AD Admin groups:"
+    Write-PPHost -Type Info -Message "The following AD Admins cannot be added to the Protected Users Group (and probably should be removed from AD Admin groups):"
     $ADAdmins | Select-Object $SelectProperties | Sort-Object -Unique $SortProperties | ForEach-Object {
         if ($_.StructuralObjectClass -notmatch 'user|iNetOrgPerson') {
             Write-PPHost -Type Error -Message "$($_.Domain)\$($_.SamAccountName)"
