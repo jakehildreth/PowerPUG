@@ -9,14 +9,14 @@ if (Get-Module -Name 'PSPublishModule' -ListAvailable) {
     Write-Information 'PSPublishModule is not installed. Attempting installation.'
     try {
         Install-Module -Name Pester -AllowClobber -Scope CurrentUser -SkipPublisherCheck -Force
-        Install-Module -Name PSPublishModule -AllowClobber -Scope CurrentUser -Force
+        Install-Module -Name PSPublishModule -AllowClobber -MaximumVersion 2.0.27 -Scope CurrentUser -Force
     }
     catch {
         Write-Error 'PSPublishModule installation failed.'
     }
 }
 
-Update-Module -Name PSPublishModule
+# Update-Module -Name PSPublishModule
 Import-Module -Name PSPublishModule -Force
 
 Build-Module -ModuleName 'PowerPUG' {
@@ -27,10 +27,10 @@ Build-Module -ModuleName 'PowerPUG' {
         GUID                   = '3f8afba8-e266-4a4b-9f09-b2d7ab35eba9'
         Author                 = 'Jake Hildreth'
         CompanyName            = ''
-        Copyright              = "(c) 2023 - $((Get-Date).Year) Jake Hildreth. All rights reserved."
+        Copyright              = "(c) 2023 - $((Get-Date).Year) Jake Hildreth, Gilmour Technologies Ltd. All rights reserved."
         Description            = 'PowerPUG helps AD Admins use the Protected Users Group safely.'
         PowerShellVersion      = '5.1'
-        Tags                   = @('Windows', 'MacOS', 'Linux')
+        Tags                   = @('Windows', 'ProtectedUsers', 'ActiveDirectory', 'PUG', 'ADSecurity')
     }
     New-ConfigurationManifest @Manifest
 
